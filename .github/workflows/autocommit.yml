@@ -29,7 +29,11 @@ jobs:
           for i in $(seq 1 $count); do
             hour=$((RANDOM % 24)) # Random hour (0-23)
             minute=$((RANDOM % 60)) # Random minute (0-59)
-            echo "$hour:$minute" >> random_times.txt
+            if [ $i -eq 1 ]; then
+              echo "$hour:$minute" > random_times.txt # Overwrite on the first iteration
+            else
+              echo "$hour:$minute" >> random_times.txt # Append for subsequent iterations
+            fi
           done
 
       - name: Run Auto Commit at Random Times
