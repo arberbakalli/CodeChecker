@@ -7,8 +7,12 @@ on:
       - master
 
   schedule:
-    - cron: "0 */6 * * *" # Runs once daily at midnight
-    # See https://crontab.guru/#0_7,9,11_*_*_1,3
+    # Define specific times for the workflow to run
+    - cron: "0 0 * * *" # Midnight
+    - cron: "0 6 * * *" # 6 AM
+    - cron: "0 12 * * *" # Noon
+    - cron: "0 18 * * *" # 6 PM
+  # See https://crontab.guru/#0_7,9,11_*_*_1,3
 
 
 jobs:
@@ -22,58 +26,30 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Generate Random Times
+      - name: Auto Commit
         run: |
-          count=$((1 + RANDOM % 30)) # Random number between 1 and 30
-          echo "Generating $count random times..."
-          for i in $(seq 1 $count); do
-            hour=$((RANDOM % 24)) # Random hour (0-23)
-            minute=$((RANDOM % 60)) # Random minute (0-59)
-            if [ $i -eq 1 ]; then
-              echo "$hour:$minute" > random_times.txt # Overwrite on the first iteration
-            else
-              echo "$hour:$minute" >> random_times.txt # Append for subsequent iterations
-            fi
-          done
+          d=`date '+%Y-%m-%dT%H:%M:%SZ'`
+          echo $d > LAST_UPDATED
 
-      - name: Run Auto Commit at Random Times
-        run: |
-          while IFS= read -r time; do
-            hour=$(echo $time | cut -d':' -f1)
-            minute=$(echo $time | cut -d':' -f2)
-            now=$(date '+%H:%M')
-            target=$(date -d "$hour:$minute" '+%H:%M')
+          git config --local user.email "arberbakalli@gmail.com"
+          git config --local user.name "arberbakalli"
+          git add -A
 
-            echo "Waiting until $target to run auto commit..."
-            while [ "$now" != "$target" ]; do
-              sleep 30
-              now=$(date '+%H:%M')
-            done
+          arr[0]="chore(bot): 😂 auto commit"
+          arr[1]="chore(bot): 😱 auto commit"
+          arr[2]="chore(bot): 👿 auto commit"
+          arr[3]="chore(bot): 💩 auto commit"
+          arr[4]="chore(bot): 🙏 auto commit"
+          arr[5]="chore(bot): 🙈 auto commit"
+          arr[6]="chore(bot): 🐐 auto commit"
+          arr[7]="chore(bot): 🤖 auto commit"
+          arr[8]="chore(bot): 🟩 auto commit"
+          arr[9]="chore(bot): 👻 auto commit"
 
-            echo "Running auto commit at $time..."
-            d=`date '+%Y-%m-%dT%H:%M:%SZ'`
-            echo $d > LAST_UPDATED
+          rand=$[$RANDOM % ${#arr[@]}]
+          git commit -m "${arr[$rand]}"
 
-            git config --local user.email "arberbakalli@gmail.com"
-            git config --local user.name "arberbakalli"
-            git add -A
-
-            arr[0]="chore(bot): 😂 auto commit"
-            arr[1]="chore(bot): 😱 auto commit"
-            arr[2]="chore(bot): 👿 auto commit"
-            arr[3]="chore(bot): 💩 auto commit"
-            arr[4]="chore(bot): 🙏 auto commit"
-            arr[5]="chore(bot): 🙈 auto commit"
-            arr[6]="chore(bot): 🐐 auto commit"
-            arr[7]="chore(bot): 🤖 auto commit"
-            arr[8]="chore(bot): 🟩 auto commit"
-            arr[9]="chore(bot): 👻 auto commit"
-
-            rand=$[$RANDOM % ${#arr[@]}]
-            git commit -m "${arr[$rand]}"
-
-            git push
-          done < random_times.txt
+          git push
 
       - name: GitHub Push
         uses: ad-m/github-push-action@v0.6.0
