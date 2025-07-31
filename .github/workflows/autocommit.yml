@@ -25,6 +25,13 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
+      - name: Debug Repository State
+        run: |
+          git status
+          git log -1
+            echo "Last updated: $(cat LAST_UPDATED || echo 'No previous update found')"
+        
+
       - name: Auto Commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
