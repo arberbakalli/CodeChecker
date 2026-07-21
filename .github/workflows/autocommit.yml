@@ -18,7 +18,7 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config --local user.email "arberbakalli@gmail.com"
+          git config --local user.email "arberbakalli@pm.me"
           git config --local user.name "arberbakalli"
 
           arr[0]="chore(bot): 😂 auto commit"
